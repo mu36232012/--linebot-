@@ -59,7 +59,7 @@ def webhook():
 # 記得開放對 Render 外部訪問的 port
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-@app.route("/", methods=["GET"])
+    @app.route("/", methods=["GET"])
 def home():
     return "Hello, this is Siya's LINE bot!"
+    app.run(host="0.0.0.0", port=port)

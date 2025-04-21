@@ -12,9 +12,10 @@ from linebot.v3.messaging import (
 from linebot.v3.webhook import WebhookParser
 from linebot.v3.exceptions import InvalidSignatureError
 
+# 初始化 Flask
 app = Flask(__name__)
 
-# 讀取環境變數
+# 環境變數
 channel_secret = os.getenv("LINE_CHANNEL_SECRET")
 channel_access_token = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -40,24 +41,22 @@ def webhook():
             if event.type == "message" and event.message.type == "text":
                 user_message = event.message.text
 
-                # 傳訊息給 OpenAI 並獲得回覆
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": user_message}]
                 )
                 reply_text = response.choices[0].message.content.strip()
 
-                # 回覆訊息給使用者
                 line_bot_api.reply_message(
                     ReplyMessageRequest(
                         reply_token=event.reply_token,
                         messages=[TextMessage(text=reply_text)]
                     )
                 )
-    return "OK"
 
-# 主程式
+    return "OK", 200  # 回傳 200 OK，LINE 才會通過 Webhook 驗證！
+
+# 開放 port 給 Render 使用
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-    

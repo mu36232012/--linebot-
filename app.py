@@ -1,7 +1,14 @@
 from flask import Flask, request, abort
 import os
 import openai
-from linebot.v3.messaging import Configuration, MessagingApi, ApiClient, ReplyMessageRequest, TextMessage
+
+from linebot.v3.messaging import (
+    Configuration,
+    MessagingApi,
+    ApiClient,
+    ReplyMessageRequest,
+    TextMessage
+)
 from linebot.v3.webhook import WebhookParser
 from linebot.v3.exceptions import InvalidSignatureError
 
@@ -32,6 +39,7 @@ def webhook():
         for event in events:
             if event.type == "message" and event.message.type == "text":
                 user_message = event.message.text
+
                 # 傳訊息給 OpenAI 並獲得回覆
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
@@ -47,3 +55,8 @@ def webhook():
                     )
                 )
     return "OK"
+
+# 記得開放對 Render 外部訪問的 port
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
